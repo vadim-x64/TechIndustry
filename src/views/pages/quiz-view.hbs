@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    {{> head}}
+</head>
+<body>
+
+{{> nav}}
+
+<main class="page-content">
+    <div class="container">
+        <h1 class="section-title">Центр тестування</h1>
+        <p style="text-align: center; color: var(--text-muted); margin-bottom: 40px;">Перевірте свої знання та отримайте підтвердження навичок</p>
+        <div id="quizContainer" style="max-width: 800px; margin: 0 auto;"></div>
+    </div>
+</main>
+
+{{> footer}}
+<script>
+    const currentQuizData = {{{json quiz}}};
+    const currentCourseSlug = "{{courseSlug}}";
+    const currentModuleId = "{{moduleId}}";
+</script>
+<script src="/js/quiz-actions.js"></script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    {{> head}}
+</head>
+<body>
+
+{{> nav}}
+
+<section class="page-section active">
+    <div class="container">
+        <div class="learning-header">
+            <h1 class="section-title">Каталог курсів</h1>
+            <p style="color: var(--text-muted); max-width: 600px; margin: 0 auto; text-align: center;">Оберіть напрямок та почніть свій шлях у IT вже сьогодні</p>
+        </div>
+
+        <div class="category-tabs" style="flex-wrap: wrap; gap: 10px;">
+            <button class="category-tab active-tab" onclick="filterCourses('all', this)">Всі</button>
+            <button class="category-tab" onclick="filterCourses('frontend', this)">Frontend</button>
+            <button class="category-tab" onclick="filterCourses('backend', this)">Backend</button>
+            <button class="category-tab" onclick="filterCourses('data science', this)">Data Science</button>
+            <button class="category-tab" onclick="filterCourses('mobile', this)">Mobile</button>
+            <button class="category-tab" onclick="filterCourses('devops', this)">DevOps</button>
+            <button class="category-tab" onclick="filterCourses('qa', this)">QA / Testing</button>
+            <button class="category-tab" onclick="filterCourses('gamedev', this)">GameDev</button>
+            <button class="category-tab" onclick="filterCourses('design', this)">Design</button>
+            <button class="category-tab" onclick="filterCourses('cybersecurity', this)">Cybersecurity</button>
+        </div>
+
+        <div class="courses-grid" id="coursesGrid">
+            {{#each courses}}
+                <div class="language-card glass" data-category="{{this.category}}">
+                    <div class="lang-header">
+                        <div class="lang-icon">{{{getCourseIcon this.category this.slug this.title}}}</div>
+                        <div class="lang-info">
+                            {{#if this.userProgress}}
+                                {{#if this.userProgress}}
+                                    <div class="course-badge {{#ifCond this.userProgress.status '==' 'completed'}}completed{{else}}in-progress{{/ifCond}}">
+                                        {{#ifCond this.userProgress.status '==' 'completed'}}Завершено{{else}}У процесі{{/ifCond}}
+                                    </div>
+                                {{/if}}
+                            {{/if}}
+                            <h3>{{this.title}}</h3>
+                            <div class="lang-level">{{this.level}}</div>
+                        </div>
+                    </div>
+                    <p style="color: var(--text-muted); margin-bottom: 16px; font-size: 14px;">{{this.description}}</p>
+
+                    {{#if this.userProgress}}
+                        <div class="progress-info" style="margin-bottom: 16px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 8px;">
+                                <span>Прогрес</span>
+                                <span>{{this.progressPercent}}%</span>
+                            </div>
+                            <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden;">
+                                <div style="width: {{this.progressPercent}}%; height: 100%; background: var(--primary); transition: width 0.3s ease;"></div>
+                            </div>
+                        </div>
+                    {{/if}}
+
+                    <div class="lang-stats">
+                        <span>📚 {{this.totalLessons}} уроків</span>
+                        <span>⏱️ {{this.totalHours}} год</span>
+                    </div>
+                    <div style="margin-top: 20px; display: flex; gap: 12px;">
+                        <button class="btn btn-primary" style="flex: 1;" onclick="startCourse('{{this.slug}}')">
+                            {{#if this.isCompleted}}
+                                Переглянути
+                            {{else}}
+                                {{#if this.isInProgress}}
+                                    Продовжити
+                                {{else}}
+                                    Почати курс
+                                {{/if}}
+                            {{/if}}
+                        </button>
+                        <button class="btn btn-secondary" onclick="location.href='/course/{{this.slug}}'">Детальніше</button>
+                    </div>
+                </div>
+            {{/each}}
+        </div>
+    </div>
+</section>
+
+{{> footer}}
+
+<script src="/js/courses.js"></script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    {{> head}}
+</head>
+<body>
+
+{{> nav}}
+
+<section class="course-section">
+    <div class="container">
+        <h1 id="courseTitle" class="course-page-title">{{course.title}}</h1>
+
+        <div class="study-layout">
+            <aside class="study-sidebar glass" id="modules">
+                {{#each course.modules}}
+                    <h3 class="module-title">{{this.title}}</h3>
+                    {{#each this.lessons}}
+                        <div class="lessons-link {{#if this.isCompleted}}completed{{/if}}"
+                             id="sidebar-lesson-{{this.id}}"
+                             onclick="loadLessonSSR('{{this.id}}', this)">
+                            <div class="lesson-status-icon"></div>
+                            <span class="lesson-link-text">{{this.title}}</span>
+                        </div>
+                    {{/each}}
+                {{/each}}
+            </aside>
+
+            <main class="study-content glass" id="lessonPreview">
+                <div class="loading-placeholder">
+                    <p>Оберіть урок зліва, щоб почати навчання 👈</p>
+                </div>
+            </main>
+        </div>
+    </div>
+</section>
+
+{{> footer}}
+
+<script>
+    const currentCourseSlug = "{{course.slug}}";
+    const isLoggedInUser = {{#if user}}true{{else}}false{{/if}};
+</script>
+<script src="/js/course.js?v=3"></script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    {{> head}}
+</head>
+<body>
+
+{{> badge}}
+{{> nav}}
+{{> avatarframes}}
+{{> profilethemes}}
+
+<section class="leaderboard-section">
+    <div class="container">
+        <div class="leaderboard-header">
+            <h1 class="gradient-text">🏆 Таблиця лідерів</h1>
+            <p class="subtitle">Топ 100 найкращих учнів платформи</p>
+        </div>
+        <div class="leaderboard-container glass">
+            {{#if topUsers}}
+                {{#each topUsers}}
+                    <div class="leaderboard-item {{#ifCond rank '===' 1}}rank-1{{/ifCond}}{{#ifCond rank '===' 2}}rank-2{{/ifCond}}{{#ifCond rank '===' 3}}rank-3{{/ifCond}}">
+                        <div class="rank">
+                            {{#ifCond rank '===' 1}}
+                                <span class="rank-medal">🥇</span>
+                            {{else}}
+                                {{#ifCond rank '===' 2}}
+                                    <span class="rank-medal">🥈</span>
+                                {{else}}
+                                    {{#ifCond rank '===' 3}}
+                                        <span class="rank-medal">🥉</span>
+                                    {{else}}
+                                        <span class="rank-number">#{{rank}}</span>
+                                    {{/ifCond}}
+                                {{/ifCond}}
+                            {{/ifCond}}
+                        </div>
+
+                        <div class="player-info-card {{#if profileTheme}}theme-{{profileTheme}}{{/if}} {{#ifCond profileTheme '!=' 'default'}}theme-active{{/ifCond}}">
+                            {{#if profileTheme}}
+                                {{#ifCond profileTheme '!==' 'default'}}
+                                    <div class="card-theme-bg">
+                                        <svg viewBox="0 0 400 100" preserveAspectRatio="xMidYMid slice">
+                                            <use href="#theme-{{profileTheme}}-card"></use>
+                                        </svg>
+                                    </div>
+                                {{/ifCond}}
+                            {{/if}}
+
+                            <div class="player-card-content">
+                                <div class="player-main-info">
+                                    <a href="/user/{{username}}" class="user-avatar-link">
+                                        <div class="user-avatar">
+                                            {{#if avatarFrame}}
+                                                <svg class="frame-overlay-small" viewBox="0 0 140 140">
+                                                    <use href="#frame-{{avatarFrame}}"></use>
+                                                </svg>
+                                            {{/if}}
+                                            {{#if avatar}}
+                                                <img src="{{avatar}}" alt="{{username}}">
+                                            {{else}}
+                                                <div class="avatar-placeholder">{{substring username 0 2}}</div>
+                                            {{/if}}
+                                        </div>
+                                    </a>
+                                    <a href="/user/{{username}}" class="username">{{username}}</a>
+                                </div>
+
+                                <div class="player-stats-side">
+                                    <span class="level-badge-mini">Рівень {{level}}</span>
+                                    <span class="xp-label">{{experience}} XP</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="badges-mini-list">
+                            {{#if recentBadges}}
+                                {{#each recentBadges}}
+                                    <div class="badge-mini-wrapper" title="{{this.name}}">
+                                        <svg class="badge-mini-icon">
+                                            <use href="#{{this.icon}}"></use>
+                                        </svg>
+                                    </div>
+                                {{/each}}
+                            {{else}}
+                                <span class="no-badges">—</span>
+                            {{/if}}
+                        </div>
+
+                        <div class="view-profile-btn">
+                            <a href="/user/{{username}}" class="btn btn-sm btn-secondary">Профіль</a>
+                        </div>
+                    </div>
+                {{/each}}
+            {{else}}
+                <div class="empty-state">
+                    <p>Таблиця лідерів порожня</p>
+                </div>
+            {{/if}}
+        </div>
+    </div>
+</section>
+
+{{> footer}}
+
+</body>
+</html>

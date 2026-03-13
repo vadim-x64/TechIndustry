@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    {{> head}}
+</head>
+<body>
+
+{{> nav}}
+
+<section class="certificate-page">
+    <div class="container">
+        <div class="certificate-layout">
+            <div class="certificate-viewer" id="certificateViewer">
+                <div class="loading-state">
+                    <div class="loading-spinner"></div>
+                    <p>Завантаження сертифіката...</p>
+                </div>
+            </div>
+
+            <aside class="certificate-sidebar">
+                <div class="sidebar-section">
+                    <h4 class="sidebar-title">Отримувач сертифіката</h4>
+                    <div class="recipient-info">
+                        <div class="recipient-avatar" id="userAvatar">
+                            {{#if user.Customer.avatar_data}}
+                                <img src="{{user.Customer.avatar_data}}" alt="Avatar">
+                            {{else}}
+                                <span id="userInitials">{{substring user.username 0 2}}</span>
+                            {{/if}}
+                        </div>
+                        <div>
+                            <div class="recipient-name" id="userName">
+                                {{#if user.Customer.first_name}}
+                                    {{user.Customer.last_name}} {{user.Customer.first_name}}
+                                {{else}}
+                                    {{user.username}}
+                                {{/if}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h4 class="sidebar-title">Інформація про курс</h4>
+                    <div class="course-info-card">
+                        <h3 class="course-title-sidebar" id="courseTitle">{{course.title}}</h3>
+                        <div class="course-meta-item">
+                            <span>📅</span>
+                            <span id="completionDate">{{completionDate}}</span> </div>
+                        <div class="course-meta-item">
+                            <span>⏱️</span>
+                            <span id="courseDuration">{{duration}} годин</span> </div>
+                        <div class="course-meta-item">
+                            <span>🎓</span>
+                            <span>TechIndustry Platform</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h4 class="sidebar-title">Номер сертифіката</h4>
+                    <div class="cert-number" id="certNumber">
+                        UC-{{user.id}}-{{courseId}}
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="certificate-actions">
+                        <button class="btn btn-primary btn-download" id="downloadBtn">
+                            <span>Завантажити PDF</span>
+                        </button>
+                        <button class="btn btn-share" id="shareBtn">
+                            <span>Поділитися</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="certificate-note">
+                        Цей сертифікат підтверджує успішне завершення курсу на платформі TechIndustry та може бути використаний для демонстрації професійних досягнень.
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+</section>
+
+{{> footer}}
+
+<script>
+    const currentCourseId = "{{courseId}}";
+</script>
+<script src="/js/certificate.js"></script>
+</body>
+</html>

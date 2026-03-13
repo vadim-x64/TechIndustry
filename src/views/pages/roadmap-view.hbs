@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    {{> head}}
+</head>
+<body>
+{{> nav}}
+<div class="container">
+    <a href="/roadmap" class="btn btn-secondary" style="display: inline-block; margin: 20px 0; text-decoration: none;">До вибору</a>
+
+    <div class="roadmap-header glass">
+        <h1 class="gradient-text">{{roadmap.title}}</h1>
+        <p>{{roadmap.description}}</p>
+    </div>
+
+    <div class="roadmap-tree">
+        {{#each roadmap.phases}}
+            <div class="roadmap-phase glass">
+                <div class="phase-number">{{add @index 1}}</div>
+                <div class="phase-content">
+                    <h3>{{this.name}}</h3>
+                    <div class="topics-grid">
+                        {{#each this.topics}}
+                            <div class="topic-tag {{#if this.important}}important{{/if}}">
+                                <span>{{this.name}}</span>
+                                {{#if this.link}}
+                                    <a href="{{this.link}}" target="_blank" class="topic-link">📖</a>
+                                {{/if}}
+                            </div>
+                        {{/each}}
+                    </div>
+                </div>
+            </div>
+        {{/each}}
+        <div class="roadmap-end glass">Ви досягли мети! 🎉</div>
+    </div>
+</div>
+{{> footer}}
+</body>
+</html>

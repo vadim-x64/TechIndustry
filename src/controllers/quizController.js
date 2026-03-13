@@ -1,0 +1,256 @@
+const fs = require('fs');
+const path = require('path');
+const db = require('../models');
+const gamificationService = require('../services/gamificationService');
+const COURSES_PATH = path.join(__dirname, '../../content/courses');
+
+function readQuizFile(slug) {
+    const quizPath = path.join(COURSES_PATH, slug, 'modules', 'quiz.json');
+    if (!fs.existsSync(quizPath)) return null;
+    return JSON.parse(fs.readFileSync(quizPath, 'utf-8'));
+}
+
+exports.renderCourseSelection = async (req, res) => {
+    try {
+        const { course: courseSlug, lessonId } = req.query;
+        if (courseSlug && lessonId) {
+            const lesson = await db.Lesson.findByPk(parseInt(lessonId));
+            if (!lesson) {
+                return res.redirect(`/quiz/${courseSlug}`);
+            }
+            const lessonOrder = lesson.order;
+            const quizzes = readQuizFile(courseSlug);
+            if (quizzes && quizzes.length > 0) {
+                const orderPrefix = String(lessonOrder).padStart(2, '0') + '-';
+                const matchingQuiz = quizzes.find(q =>
+                    typeof q.moduleId === 'string' && q.moduleId.startsWith(orderPrefix)
+                );
+                if (matchingQuiz) {
+                    return res.redirect(`/quiz/${courseSlug}/${matchingQuiz.moduleId}`);
+                }
+            }
+            return res.redirect(`/quiz/${courseSlug}`);
+        }
+        const courses = await db.Course.findAll();
+        const userId = req.userId;
+        const coursesWithStats = await Promise.all(courses.map(async (course) => {
+            const plainCourse = course.get({ plain: true });
+            const quizzes = readQuizFile(plainCourse.slug);
+            const totalQuizzes = quizzes ? quizzes.length : 0;
+
+            let completedQuizzes = 0;
+            let isInProgress = false;
+            if (userId) {
+                const progress = await db.UserProgress.findOne({
+                    where: {
+                        user_id: userId,
+                        course_id: plainCourse.id
+                    }
+                });
+
+                if (progress) {
+                    isInProgress = true;
+                    if (Array.isArray(progress.completed_quizzes)) {
+                        completedQuizzes = progress.completed_quizzes.filter(id =>
+                            id.startsWith(`${plainCourse.slug}:`)
+                        ).length;
+                    }
+                }
+            }
+
+            return {
+                ...plainCourse,
+                totalQuizzes,
+                completedQuizzes,
+                isGuest: !userId,
+                isInProgress
+            };
+        }));
+
+        res.render('quiz-courses', {
+            title: 'Центр тестування | TechIndustry',
+            metaDescription: 'Перевірте свої знання з IT: тести по JavaScript, Python, React. Проходьте квізи та отримуйте XP і монети на TechIndustry.',
+            ogTitle: 'Центр тестування — Квізи по програмуванню',
+            ogDescription: 'Інтерактивні тести для перевірки знань з програмування. Заробляйте XP та досягнення.',
+            extraCss: ['/css/quiz.css'],
+            courses: coursesWithStats,
+            user: res.locals.user,
+            csrfToken: req.csrfToken ? req.csrfToken() : ''
+        });
+
+    } catch (e) {
+        console.error('renderCourseSelection error:', e);
+        res.status(500).send('Помилка завантаження курсів');
+    }
+};
+
+exports.renderQuizList = async (req, res) => {
+    try {
+        const { slug } = req.params;
+        const userId = req.userId;
+        const course = await db.Course.findOne({ where: { slug } });
+        if (!course) return res.redirect('/quiz');
+        const quizzes = readQuizFile(slug);
+        let completedQuizIds = [];
+        if (userId) {
+            const progress = await db.UserProgress.findOne({
+                where: {
+                    user_id: userId,
+                    course_id: course.id
+                }
+            });
+            if (progress && Array.isArray(progress.completed_quizzes)) {
+                completedQuizIds = progress.completed_quizzes
+                    .filter(id => id.startsWith(`${slug}:`))
+                    .map(id => id.split(':')[1]);
+            }
+        }
+        const quizzesWithStatus = (quizzes || []).map(quiz => ({
+            ...quiz,
+            isCompleted: completedQuizIds.includes(quiz.moduleId),
+            xpReward: completedQuizIds.includes(quiz.moduleId) ? 0 : 100,
+            coinsReward: completedQuizIds.includes(quiz.moduleId) ? 0 : 30
+        }));
+        res.render('quiz-list', {
+            title: `Тести: ${course.title} | TechIndustry`,
+            metaDescription: `Пройдіть тести з курсу "${course.title}". Перевірте знання та заробіть досягнення на TechIndustry.`,
+            ogTitle: `Тести: ${course.title}`,
+            ogDescription: `Інтерактивні тести для закріплення знань з курсу ${course.title}.`,
+            extraCss: ['/css/quiz.css'],
+            noindex: true,
+            quizzes: quizzesWithStatus,
+            courseSlug: slug,
+            courseTitle: course.title,
+            user: res.locals.user,
+            csrfToken: req.csrfToken ? req.csrfToken() : ''
+        });
+    } catch (e) {
+        console.error('renderQuizList error:', e);
+        res.status(500).send('Помилка завантаження списку тестів');
+    }
+};
+
+exports.renderQuiz = async (req, res) => {
+    try {
+        const { slug, moduleId } = req.params;
+        const quizzes = readQuizFile(slug);
+        const quiz = quizzes?.find(q => q.moduleId === moduleId);
+        if (!quiz) return res.redirect('/quiz/' + slug);
+        const sanitizedQuiz = {
+            ...quiz,
+            questions: quiz.questions.map(q => {
+                const { correctAnswer, expectedPattern, ...rest } = q;
+                return rest;
+            })
+        };
+        res.render('quiz-view', {
+            title: `${quiz.title} | TechIndustry`,
+            metaDescription: `Тест: ${quiz.title}. Перевірте свої знання та заробіть досягнення.`,
+            noindex: true,
+            extraCss: ['/css/quiz.css'],
+            quiz: sanitizedQuiz,
+            courseSlug: slug,
+            moduleId: moduleId,
+            csrfToken: req.csrfToken ? req.csrfToken() : ''
+        });
+    } catch (e) {
+        console.error('renderQuiz error:', e);
+        res.status(500).send('Помилка завантаження тесту');
+    }
+};
+
+exports.submitQuiz = async (req, res) => {
+    try {
+        const { slug, moduleId } = req.params;
+        const { answers } = req.body;
+        const userId = req.userId;
+        const quizzes = readQuizFile(slug);
+        const quiz = quizzes?.find(q => q.moduleId === moduleId);
+        if (!quiz) return res.status(404).json({ message: 'Тест не знайдено' });
+        let correctCount = 0;
+        const totalQuestions = quiz.questions.length;
+        quiz.questions.forEach(q => {
+            const userAnswer = answers[q.id];
+            if (q.type === 'multiple' && Array.isArray(q.correctAnswer)) {
+                if (Array.isArray(userAnswer) &&
+                    userAnswer.length === q.correctAnswer.length &&
+                    userAnswer.every(val => q.correctAnswer.includes(val))) {
+                    correctCount++;
+                }
+            }
+            else if (q.type === 'single') {
+                if (Number(userAnswer) === Number(q.correctAnswer)) {
+                    correctCount++;
+                }
+            }
+            else if (q.type === 'code' && q.expectedPattern) {
+                const regex = new RegExp(q.expectedPattern, 'm');
+                if (regex.test(userAnswer)) {
+                    correctCount++;
+                }
+            }
+        });
+        const percent = Math.round((correctCount / totalQuestions) * 100);
+        const passed = percent >= quiz.passingScore;
+        let gamificationResult = null;
+        let isFirstCompletion = false;
+        if (passed && userId) {
+            const course = await db.Course.findOne({ where: { slug } });
+            if (course) {
+                let progress = await db.UserProgress.findOne({
+                    where: { user_id: userId, course_id: course.id }
+                });
+
+                if (!progress) {
+                    progress = await db.UserProgress.create({
+                        user_id: userId,
+                        course_id: course.id,
+                        status: 'in_progress',
+                        completed_lessons: [],
+                        completed_quizzes: [],
+                        started_at: new Date(),
+                        last_accessed: new Date()
+                    });
+                }
+                let completedQuizzes = progress.completed_quizzes;
+                if (!Array.isArray(completedQuizzes)) {
+                    completedQuizzes = [];
+                }
+                const quizIdentifier = `${slug}:${moduleId}`;
+                if (!completedQuizzes.includes(quizIdentifier)) {
+                    isFirstCompletion = true;
+                    completedQuizzes.push(quizIdentifier);
+                    await db.UserProgress.update(
+                        {
+                            completed_quizzes: completedQuizzes,
+                            last_accessed: new Date()
+                        },
+                        {
+                            where: {
+                                user_id: userId,
+                                course_id: course.id
+                            }
+                        }
+                    );
+                    gamificationResult = await gamificationService.onQuizComplete(
+                        userId,
+                        percent,
+                        quizIdentifier
+                    );
+                }
+            }
+        }
+        res.json({
+            passed,
+            percent,
+            correctCount,
+            totalQuestions,
+            message: passed ? 'Вітаємо! Тест пройдено.' : 'Недостатньо балів для проходження.',
+            gamification: isFirstCompletion ? gamificationResult : null,
+            isRepeat: passed && !isFirstCompletion
+        });
+    } catch (error) {
+        console.error("submitQuiz error:", error);
+        res.status(500).json({ message: 'Помилка на сервері під час перевірки' });
+    }
+};

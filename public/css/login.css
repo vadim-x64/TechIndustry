@@ -1,0 +1,301 @@
+body {
+    overflow-y: scroll;
+}
+
+.container-fluid {
+    min-height: 80vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+    z-index: 1;
+    position: relative;
+}
+
+.auth-container {
+    width: 100%;
+    max-width: 500px;
+    border-radius: 20px;
+    overflow: hidden;
+    animation: fadeIn 0.5s ease;
+}
+
+.glass-input.input-error {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.3);
+}
+
+.field-error {
+    color: #ef4444;
+    font-size: 12px;
+    margin-top: 4px;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.glass-input.input-success {
+    border-color: #10b981 !important;
+    box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.3);
+}
+
+.field-success {
+    color: #10b981;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.tabs {
+    display: flex;
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.tab {
+    flex: 1;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    font-weight: bold;
+    color: var(--text-muted);
+    transition: all 0.5s ease;
+    font-size: 24px;
+}
+
+.tab.active {
+    color: #FFFFFF;
+    background: rgba(99, 102, 241, 0.1);
+    border-bottom: 5px solid var(--primary);
+}
+
+.form-container {
+    padding: 40px;
+}
+
+.form {
+    display: none;
+}
+
+.form.active {
+    display: block;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+    color: var(--text-muted);
+    font-size: 16px;
+    font-weight: normal;
+}
+
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-input-wrapper .glass-input {
+    padding-right: 50px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 15px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+}
+
+.toggle-password.active .eye-slash {
+    display: none;
+}
+
+.glass-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 16px;
+    color: var(--text);
+    font-size: 16px;
+    outline: none;
+    transition: all 0.5s ease;
+}
+
+.glass-input:focus {
+    border-color: var(--primary);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.auth-btn {
+    width: 100%;
+    margin-top: 10px;
+    border-radius: 10px;
+    font-size: 18px;
+    padding: 16px;
+}
+
+.oauth-divider {
+    margin: 18px 0 14px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 14px;
+    position: relative;
+}
+
+.oauth-divider::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    border-top: 1px solid var(--glass-border);
+}
+
+.oauth-divider span {
+    position: relative;
+    z-index: 1;
+    background: var(--dark-light);
+    padding: 0 12px;
+}
+
+.google-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 14px 16px;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.google-btn:hover {
+    background: rgba(255, 255, 255, 0.14);
+    transform: translateY(-1px);
+}
+
+.google-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+.message {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 15px;
+    text-align: center;
+    display: none;
+}
+
+.message.error {
+    display: block;
+    background: rgba(239, 68, 68, 0.1);
+    color: #fca5a5;
+    border-left: 5px solid #EF4444;
+}
+
+.message.success {
+    display: block;
+    background: rgba(34, 197, 94, 0.1);
+    color: #86efac;
+    border-left: 5px solid #22C55E;
+}
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    z-index: 9999;
+}
+
+.modal-overlay.active { display: flex; justify-content: center; align-items: center; }
+
+.modal-content {
+    background: var(--dark-light);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 40px;
+    max-width: 500px;
+    width: 90%;
+    position: relative;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-close {
+    position: absolute; top: 20px; right: 20px;
+    background: transparent; border: none;
+    color: var(--text-muted); font-size: 28px; cursor: pointer;
+}
+
+.forgot-password-link {
+    display: inline-block;
+    margin-top: 12px;
+    color: var(--primary);
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.forgot-password-link:hover { text-decoration: underline; }
+
+.code-notification {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    z-index: 10001; background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(10px);
+    width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+}
+
+.code-notification-content {
+    background: var(--dark-light); border: 2px solid var(--primary);
+    border-radius: 20px; padding: 40px; text-align: center; max-width: 500px;
+}
+
+.code-display {
+    font-size: 42px; font-weight: bold; letter-spacing: 8px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    padding: 20px; margin: 20px 0; border: 2px dashed var(--primary);
+}
